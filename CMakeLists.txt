@@ -21,12 +21,14 @@ endif()
 set(BRUH_SRC
     src/main.cpp
     src/Demangler.cpp
+    src/DemanglePass.cpp
     src/ModulePrinter.cpp
 )
 
 set(BRUH_INCLUDES
-    include/ModulePrinter.hpp
     include/Demangler.h
+    include/DemanglePass.h
+    include/ModulePrinter.hpp
 )
 
 set(SWIFT_AST_INCLUDES
