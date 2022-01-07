@@ -20,6 +20,7 @@ using namespace std;
 class ModulePrinter : public InstVisitor<ModulePrinter> {
     const Module *module;
     raw_fd_stream *os;
+    Demangler *demangler;
 
     // TODO: Gross, replace with slot tracking
     int globalCounter = 0;
@@ -33,7 +34,7 @@ class ModulePrinter : public InstVisitor<ModulePrinter> {
     };
 
 public:
-    ModulePrinter(const Module *module, raw_fd_stream *os) : module(module), os(os) {};
+    ModulePrinter(const Module *module, raw_fd_stream *os, Demangler *demangler) : module(module), os(os), demangler(demangler) {};
 
     // Compiler will be a hateful bastard if we don't defined these
     void visit(Module &module) { InstVisitor<ModulePrinter>::visit(module); }

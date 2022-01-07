@@ -22,7 +22,7 @@ void DemanglePass::visitModule(Module &module) {
 }
 
 void DemanglePass::visitStructType(StructType *type) {
-    auto structName = Demangler::demangle(type->getName());
+    auto structName = demangler->demangle(type->getName());
 
     if (!structName.empty()) {
         type->setName(structName);
@@ -30,7 +30,7 @@ void DemanglePass::visitStructType(StructType *type) {
 }
 
 void DemanglePass::visitFunction(Function &function) {
-    auto functionName = Demangler::demangle(function.getName());
+    auto functionName = demangler->demangle(function.getName());
 
     if (!functionName.empty()) {
         function.setName(functionName);
@@ -50,7 +50,7 @@ void DemanglePass::visitInstruction(Instruction &instruction) {
 
 // MARK: - Custom visitors
 void DemanglePass::visitGlobal(GlobalVariable &global) {
-    auto globalName = Demangler::demangle(global.getName());
+    auto globalName = demangler->demangle(global.getName());
 
     if (!globalName.empty()) {
         global.setName(globalName);
@@ -63,7 +63,7 @@ void DemanglePass::visitGlobal(GlobalVariable &global) {
 
 void DemanglePass::visitValue(Value *value) {
     if (value->hasName()) {
-        auto valueName = Demangler::demangle(value->getName());
+        auto valueName = demangler->demangle(value->getName());
 
         if (!valueName.empty()) {
             value->setName(valueName);
