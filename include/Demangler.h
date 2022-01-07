@@ -2,7 +2,7 @@
 //  Demangler.h
 //  bruh
 //
-//  Created by thomas on 23/11/2021.
+//  Created by NinjaLikesCheez on 23/11/2021.
 //
 
 #ifndef Demangler_h
@@ -15,6 +15,7 @@
 using namespace std;
 using namespace llvm;
 
+// TODO: cache symbols here?
 class Demangler {
 public:
     static string demangle(const string symbol);

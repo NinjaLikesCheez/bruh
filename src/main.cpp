@@ -1,3 +1,10 @@
+//
+//  main.cpp
+//  bruh
+//
+//  Created by NinjaLikesCheez on 19/11/2021.
+//
+
 #include <llvm/Analysis/InstructionSimplify.h>
 #include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/IR/LLVMContext.h>
@@ -7,7 +14,7 @@
 
 #include <iostream>
 
-#include "ModulePrinter.hpp"
+#include "DemanglePass.h"
 
 using namespace llvm;
 using namespace std;
@@ -54,7 +61,7 @@ int main(int argc, char **argv, char **envp) {
     PrettyStackTraceProgram X(argc, argv);
     cl::ParseCommandLineOptions(argc, argv, "BRUH (Bitcode Readable for Us Humans) v0.1");
 
-    ExitOnError ExitOnErr("BRUH (Bitcode Readable for Us Humans: ");
+    ExitOnError ExitOnErr("BRUH (Bitcode Readable for Us Humans): ");
 
     // TODO: support multi modules via BitcodeFileContents reading APIs
     std::unique_ptr<MemoryBuffer> bitcode = ExitOnErr(getBitcodeFile(InputFilename));
@@ -74,8 +81,10 @@ int main(int argc, char **argv, char **envp) {
     // Dump processed IR
     raw_fd_stream os(ProcessedOutput, errorCode); // if path is "-", stdout will be used
 
-    auto printer = new ModulePrinter(module.get(), &os);
-    printer->visit(*module);
+    auto demanglePass = new DemanglePass(module.get());
+    demanglePass->visit(*module);
+
+    module->print(os, NULL, true, true);
 
     return 0;
 }
