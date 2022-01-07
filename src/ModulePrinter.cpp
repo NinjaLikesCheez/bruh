@@ -171,7 +171,7 @@ void ModulePrinter::printModuleMetadata(const Module &module) {
 }
 
 void ModulePrinter::printStructType(const StructType &structType) {
-    printLLVMName(Demangler::demangle(structType.getName()), Local);
+    printLLVMName(demangler->demangle(structType.getName()), Local);
     (*os) << " = type ";
 
     printStructTypeBody(structType);
@@ -434,7 +434,7 @@ void ModulePrinter::printType(const Type *type) {
             }
 
             if (structType->hasName()) {
-                printLLVMName(Demangler::demangle(structType->getName()), Local);
+                printLLVMName(demangler->demangle(structType->getName()), Local);
                 return;
             }
 
@@ -853,7 +853,7 @@ string ModulePrinter::getGlobalName(const GlobalVariable &global) {
     switch (global.getUnnamedAddr()) {
         case GlobalValue::UnnamedAddr::None:
             // TODO: add string quotes here, when needed - idk how to determine that atm :/
-            return Demangler::demangle(global.getName());
+            return demangler->demangle(global.getName());
         case GlobalValue::UnnamedAddr::Local:
             assert(false);  // Handle this appropriately
             exit(1);
@@ -943,7 +943,7 @@ string ModulePrinter::getThreadLocalName(const GlobalValue::ThreadLocalMode mode
     return {};
 }
 string ModulePrinter::getFunctionName(const Function *function) {
-    return Demangler::demangle(function->getName());
+    return demangler->demangle(function->getName());
 }
 
 string ModulePrinter::getBasicBlockName(const BasicBlock *basicBlock) {

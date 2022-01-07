@@ -8,6 +8,7 @@
 #ifndef Demangler_h
 #define Demangler_h
 
+#include <map>
 #include <string>
 
 #include <llvm/ADT/StringRef.h>
@@ -17,9 +18,13 @@ using namespace llvm;
 
 // TODO: cache symbols here?
 class Demangler {
+private:
+    map<string, string> symbols;
+
 public:
-    static string demangle(const string symbol);
-    static string demangle(const StringRef symbol);
+    Demangler() { };
+    string demangle(const string symbol);
+    string demangle(const StringRef symbol);
 };
 
 #endif /* Demangler_h */

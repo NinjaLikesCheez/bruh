@@ -11,10 +11,13 @@
 #include "llvm/Support/raw_ostream.h"
 
 string Demangler::demangle(const string symbol) {
+    // If we've seen this symbol before, return the result of the previous demangling
+    if (symbols.contains(symbol)) {
+        return symbols[symbol];
+    }
+
     // TODO: handle hidden names, BCSymbol lookup, OBJC class refs, ivar refs, accelerate dispatch naming, etc
     auto strippedSymbol = symbol.find('\1') == 0 ? symbol.substr(1) : symbol;
-
-    llvm::outs() << "strippedSymbol: " << strippedSymbol << "\n";
 
     // Some patterns I've seen that require partial demangling:
     // got.$sym
@@ -33,11 +36,18 @@ string Demangler::demangle(const string symbol) {
         auto demangledSymbol = swift::Demangle::demangleSymbolAsString(strippedSymbol);
 
         if (!remaining.empty()) {
-            return remaining + "." + demangledSymbol;
+            auto newSymbol = remaining + "." + demangledSymbol;
+            symbols[symbol] = newSymbol;
+
+            return newSymbol;
         }
+
+        symbols[symbol] = demangledSymbol;
 
         return demangledSymbol;
     }
+
+    symbols[symbol] = symbol;
 
     return symbol;
 }
