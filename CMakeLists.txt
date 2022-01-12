@@ -21,13 +21,17 @@ endif()
 set(BRUH_SRC
     src/main.cpp
     src/Demangler.cpp
+    src/Detrampoline.cpp
+    src/DetrampolinePass.cpp
     src/DemanglePass.cpp
     src/ModulePrinter.cpp
 )
 
 set(BRUH_INCLUDES
     include/Demangler.h
+    include/Detrampoline.h
     include/DemanglePass.h
+    include/DetrampolinePass.h
     include/ModulePrinter.hpp
 )
 

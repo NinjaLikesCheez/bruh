@@ -47,6 +47,12 @@ string Demangler::demangle(const string symbol) {
         return demangledSymbol;
     }
 
+    // Objc
+
+    // C++
+
+    // ????
+
     symbols[symbol] = symbol;
 
     return symbol;

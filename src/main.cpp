@@ -16,6 +16,7 @@
 
 #include "Demangler.h"
 #include "DemanglePass.h"
+#include "DetrampolinePass.h"
 
 using namespace llvm;
 using namespace std;
@@ -92,6 +93,9 @@ int main(int argc, char **argv, char **envp) {
         auto demangler = new Demangler();
         auto demanglePass = new DemanglePass(module.get(), demangler);
         demanglePass->visit(*module);
+
+        auto detrampolinePass = new DetrampolinePass(module.get());
+        detrampolinePass->visit(*module);
 
         module->print(os, NULL, true, true);
     }

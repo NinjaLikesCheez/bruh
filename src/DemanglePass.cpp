@@ -8,6 +8,8 @@
 #include "DemanglePass.h"
 #include "Demangler.h"
 
+#include <llvm/Support/Casting.h>
+
 // MARK: - Regular visitors
 void DemanglePass::visitModule(Module &module) {
     // Resolve structure type names
