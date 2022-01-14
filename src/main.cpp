@@ -14,6 +14,7 @@
 
 #include <iostream>
 
+#include "Demangler.h"
 #include "DemanglePass.h"
 
 using namespace llvm;
@@ -71,20 +72,29 @@ int main(int argc, char **argv, char **envp) {
     ExitOnErr(module->materializeAll());
 
     // Dump regular, unprocessed IR if asked to
-    std::error_code errorCode; // TODO: ERROR HANDLE
+    std::error_code errorCode;
     if (!RegularOutput.empty()) {
         raw_fd_ostream os(RegularOutput, errorCode); // if path is "-" stdout will be used
 
-        module->print(os, NULL, false, true);
+        if (errorCode) {
+            std::cout << "error: failed to open file for regular printing: " << RegularOutput << std::endl;
+        } else {
+            module->print(os, NULL, false, true);
+        }
     }
 
     // Dump processed IR
     raw_fd_stream os(ProcessedOutput, errorCode); // if path is "-", stdout will be used
 
-    auto demanglePass = new DemanglePass(module.get());
-    demanglePass->visit(*module);
+    if (errorCode) {
+        std::cout << "error: failed to open file for regular printing: " << ProcessedOutput << std::endl;
+    } else {
+        auto demangler = new Demangler();
+        auto demanglePass = new DemanglePass(module.get(), demangler);
+        demanglePass->visit(*module);
 
-    module->print(os, NULL, true, true);
+        module->print(os, NULL, true, true);
+    }
 
-    return 0;
+    return errorCode.value();
 }

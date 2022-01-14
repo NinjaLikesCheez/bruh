@@ -8,38 +8,52 @@
 #include "Demangler.h"
 
 #include <swift/Demangling/Demangle.h>
-#include "llvm/Support/raw_ostream.h"
+#include <llvm/Demangle/Demangle.h>
+#include <llvm/Support/raw_ostream.h>
+
+#include <iostream>
 
 string Demangler::demangle(const string symbol) {
+    // If we've seen this symbol before, return the result of the previous demangling
+    if (symbols.contains(symbol)) {
+        return symbols[symbol];
+    }
+
     // TODO: handle hidden names, BCSymbol lookup, OBJC class refs, ivar refs, accelerate dispatch naming, etc
-    auto strippedSymbol = symbol.find('\1') == 0 ? symbol.substr(1) : symbol;
+    auto demangledSymbol = symbol.find('\1') == 0 ? symbol.substr(1) : symbol;
 
-    llvm::outs() << "strippedSymbol: " << strippedSymbol << "\n";
-
-    // Some patterns I've seen that require partial demangling:
+    /* Swift */
+    // Sometimes you see partial patterns in Swift (only when manually compiled?)
+    // in these cases, we want to lop off everything to the left of the mangle prefix
+    // Note: This currently doesn't support Swift 3, 4 mangling schemes
+    // Patterns seen (and handled):
     // got.$sym
-    auto dotPosition = strippedSymbol.find_first_of(".");
+    auto dotPosition = demangledSymbol.find_first_of(".");
     std::string remaining = "";
 
     if (dotPosition != std::string::npos) {
         // got.$sym
-        if (strippedSymbol.front() != '$' && strippedSymbol.at(dotPosition + 1) == '$') {
-            remaining = strippedSymbol.substr(0, dotPosition);
-            strippedSymbol = strippedSymbol.substr(dotPosition + 1, strippedSymbol.size());
+        if (demangledSymbol.front() != '$' && demangledSymbol.at(dotPosition + 1) == '$') {
+            remaining = demangledSymbol.substr(0, dotPosition);
+            demangledSymbol = demangledSymbol.substr(dotPosition + 1, demangledSymbol.size());
         }
     }
 
-    if (swift::Demangle::isSwiftSymbol(strippedSymbol)) {
-        auto demangledSymbol = swift::Demangle::demangleSymbolAsString(strippedSymbol);
-
-        if (!remaining.empty()) {
-            return remaining + "." + demangledSymbol;
-        }
-
-        return demangledSymbol;
+    if (swift::Demangle::isSwiftSymbol(demangledSymbol)) {
+        demangledSymbol = swift::Demangle::demangleSymbolAsString(demangledSymbol);
+    } else {
+        /* C++, Rust, msft, dlang, whatever else LLVM supports */
+        demangledSymbol = llvm::demangle(demangledSymbol);
     }
 
-    return symbol;
+    // Handle adding the remaining string back
+    if (!remaining.empty()) {
+        demangledSymbol = remaining + "." + demangledSymbol;
+    }
+
+    symbols[symbol] = demangledSymbol;
+
+    return demangledSymbol;
 }
 
 string Demangler::demangle(const StringRef symbol) {

@@ -10,15 +10,18 @@
 
 #include <llvm/IR/InstVisitor.h>
 
+#include "Demangler.h"
+
 using namespace llvm;
 using namespace std;
 
 class DemanglePass : public InstVisitor<DemanglePass> {
     /// The module we're operating on
     const Module *module;
+    Demangler *demangler;
 
 public:
-    DemanglePass(const Module *module) : module(module) { };
+    DemanglePass(const Module *module, Demangler *demangler) : module(module), demangler(demangler) { };
 
     // Compiler will be a hateful bastard if we don't defined these
     void visit(Module &module) { InstVisitor<DemanglePass>::visit(module); }
