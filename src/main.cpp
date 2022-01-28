@@ -16,26 +16,40 @@
 
 #include "Demangler.h"
 #include "DemanglePass.h"
+#include "DetrampolinePass.h"
 
-using namespace llvm;
-using namespace std;
+using llvm::cl::opt;
+using llvm::cl::Positional;
+using llvm::cl::desc;
+using llvm::cl::init;
+using llvm::Expected;
+using llvm::MemoryBuffer;
+using llvm::StringRef;
+using llvm::createStringError;
+using llvm::LLVMContext;
+using llvm::ExitOnError;
+using llvm::PrettyStackTraceProgram;
+using llvm::raw_fd_ostream;
+using llvm::llvm_shutdown_obj;
+
+using std::string;
 
 // CLI Options
-static cl::opt<string> InputFilename(
-    cl::Positional,
-    cl::desc("<bitcode file>"),
-    cl::init("-")
+static opt<string> InputFilename(
+    Positional,
+    desc("<bitcode file>"),
+    init("-")  // default to stdout
 );
 
-static cl::opt<string> RegularOutput(
+static opt<string> RegularOutput(
     "regular",
-    cl::desc("Emit unprocessed IR to this filepath")
+    desc("Emit unprocessed IR to this filepath")
 );
 
-static cl::opt<string> ProcessedOutput(
+static opt<string> ProcessedOutput(
     "processed",
-    cl::desc("Emit processed IR to this filepath, or stdout if nothing is provided"),
-    cl::init("-")
+    desc("Emit processed IR to this filepath, or stdout if nothing is provided"),
+    init("-")  // default to stdout
 );
 
 static Expected<std::unique_ptr<MemoryBuffer>> getBitcodeFile(StringRef path) {
@@ -48,7 +62,10 @@ static Expected<std::unique_ptr<MemoryBuffer>> getBitcodeFile(StringRef path) {
     auto memoryBuffer = std::move(*memoryBufferOrError);
 
     if (memoryBuffer->getBufferSize() & 3) {
-        return createStringError(std::errc::illegal_byte_sequence, "Bitcode stream should be a multiple of 4 bytes in length");
+        return createStringError(
+            std::errc::illegal_byte_sequence,
+            "Bitcode stream should be a multiple of 4 bytes in length"
+        );
     }
 
     return std::move(memoryBuffer);
@@ -58,9 +75,9 @@ int main(int argc, char **argv, char **envp) {
     LLVMContext context;
     llvm_shutdown_obj shutdownObject;
 
-    sys::PrintStackTraceOnErrorSignal(argv[0]);
+    llvm::sys::PrintStackTraceOnErrorSignal(argv[0]);
     PrettyStackTraceProgram X(argc, argv);
-    cl::ParseCommandLineOptions(argc, argv, "BRUH (Bitcode Readable for Us Humans) v0.1");
+    llvm::cl::ParseCommandLineOptions(argc, argv, "BRUH (Bitcode Readable for Us Humans) v0.1");
 
     ExitOnError ExitOnErr("BRUH (Bitcode Readable for Us Humans): ");
 
@@ -74,7 +91,7 @@ int main(int argc, char **argv, char **envp) {
     // Dump regular, unprocessed IR if asked to
     std::error_code errorCode;
     if (!RegularOutput.empty()) {
-        raw_fd_ostream os(RegularOutput, errorCode); // if path is "-" stdout will be used
+        raw_fd_ostream os(RegularOutput, errorCode);
 
         if (errorCode) {
             std::cout << "error: failed to open file for regular printing: " << RegularOutput << std::endl;
@@ -84,7 +101,7 @@ int main(int argc, char **argv, char **envp) {
     }
 
     // Dump processed IR
-    raw_fd_stream os(ProcessedOutput, errorCode); // if path is "-", stdout will be used
+    raw_fd_ostream os(ProcessedOutput, errorCode);
 
     if (errorCode) {
         std::cout << "error: failed to open file for regular printing: " << ProcessedOutput << std::endl;
@@ -92,6 +109,9 @@ int main(int argc, char **argv, char **envp) {
         auto demangler = new Demangler();
         auto demanglePass = new DemanglePass(module.get(), demangler);
         demanglePass->visit(*module);
+
+        auto detrampolinePass = new DetrampolinePass(module.get());
+        detrampolinePass->visit(*module);
 
         module->print(os, NULL, true, true);
     }

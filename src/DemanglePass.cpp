@@ -62,11 +62,9 @@ void DemanglePass::visitGlobal(GlobalVariable &global) {
 }
 
 void DemanglePass::visitValue(Value *value) {
-    if (value->hasName()) {
-        auto valueName = demangler->demangle(value->getName());
+    auto valueName = demangler->demangle(value->getName());
 
-        if (!valueName.empty()) {
-            value->setName(valueName);
-        }
+    if (!valueName.empty()) {
+        value->setName(valueName);
     }
 }

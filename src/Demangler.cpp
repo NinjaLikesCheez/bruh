@@ -14,6 +14,8 @@
 #include <iostream>
 
 string Demangler::demangle(const string symbol) {
+    if (symbol.empty()) { return {}; }
+
     // If we've seen this symbol before, return the result of the previous demangling
     if (symbols.contains(symbol)) {
         return symbols[symbol];
