@@ -60,8 +60,6 @@ add_executable(bruh
     ${SWIFT_AST_INCLUDES}
 )
 
-string(COMPARE EQUAL "${CMAKE_GENERATOR}" "Xcode" _cmpXcode)
-
 target_include_directories(bruh PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${LLVM_INCLUDE_DIRS}
