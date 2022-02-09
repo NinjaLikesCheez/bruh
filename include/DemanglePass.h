@@ -29,7 +29,7 @@ class DemanglePass : public InstVisitor<DemanglePass> {
  public:
     DemanglePass(const Module *module, Demangler *demangler) : module(module), demangler(demangler) { }
 
-    // Compiler will be a hateful bastard if we don't defined these
+    // Compiler will be a hateful bastard if we don't define these
     void visit(Module &module) { InstVisitor<DemanglePass>::visit(module); }
     void visit(Function &function) { InstVisitor<DemanglePass>::visit(function); }
     void visit(BasicBlock &basicBlock) { InstVisitor<DemanglePass>::visit(basicBlock); }
