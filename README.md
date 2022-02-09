@@ -4,7 +4,7 @@
 
 `bruh` is a tool to make LLVM IR more human readable.
 
-It's intention is not to create valid IR for anything other than easier reading for humans.
+Its intention is not to create valid IR for anything other than easier reading for humans.
 
 For example, it will take CallSites like these:
 

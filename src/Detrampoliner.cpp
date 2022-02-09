@@ -13,7 +13,6 @@
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Constants.h>
 
-#include <iostream>
 #include <sstream>
 
 #include "logging.h"
@@ -27,8 +26,6 @@ using llvm::LoadInst;
 using llvm::StoreInst;
 using llvm::User;
 
-using std::cout;
-using std::endl;
 using std::vector;
 using std::ostringstream;
 
@@ -234,7 +231,7 @@ Detrampoliner::DetrampolineResult Detrampoliner::detrampoline(const CallInst &ca
 
     if (callInst.getIntrinsicID() != llvm::Intrinsic::not_intrinsic) {
         // TODO: handle intrinsics?
-        cout << "Support for intrinsics is currently not implemented..." << endl;
+        LOG_DEBUG("Support for intrinsics is currently not implemented...");
         return {callType, selfName, selectorName};
     }
 
@@ -250,7 +247,7 @@ Detrampoliner::DetrampolineResult Detrampoliner::detrampoline(const CallInst &ca
     auto trampoline = getObjCRuntimeTrampoline(functionName);
 
     if (trampoline == unknown) {
-        cout << "Call type was unhandled: " << functionName << endl;
+        LOG_DEBUG("Call type was unhandled: " << functionName);
         return {callType, selfName, selectorName};
     }
 
@@ -275,7 +272,7 @@ Detrampoliner::DetrampolineResult Detrampoliner::detrampoline(const CallInst &ca
 
         break;
     case unknown:
-        cout << "Call type was unhandled: " << functionName << endl;
+        LOG_DEBUG("Call type was unhandled: " << functionName);
         return {callType, selfName, selectorName};
     }
 

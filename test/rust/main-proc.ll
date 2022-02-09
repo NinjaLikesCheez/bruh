@@ -67,7 +67,7 @@ start:
   br label %bb1
 
 bb1:                                              ; preds = %start
-  %0 = call nonnull i8* @"core::ptr::non_null::NonNull$LT$T$GT$::new_unchecked::h52016c20d23e96b9"(i8* %_2)
+  %0 = call nonnull i8* @"core::pitr::non_null::NonNull$LT$T$GT$::new_unchecked::h52016c20d23e96b9"(i8* %_2)
   br label %bb2
 
 bb2:                                              ; preds = %bb1

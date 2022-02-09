@@ -12,13 +12,16 @@
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
 
-#include <iostream>
+#include <sys/ioctl.h>
 
 #include "Demangler.h"
 #include "DemanglePass.h"
 #include "DetrampolinePass.h"
+#include "logging.h"
 
 using llvm::cl::opt;
+using llvm::cl::alias;
+using llvm::cl::aliasopt;
 using llvm::cl::Positional;
 using llvm::cl::desc;
 using llvm::cl::init;
@@ -46,11 +49,15 @@ static opt<string> RegularOutput(
     desc("Emit unprocessed IR to this filepath")
 );
 
+static alias regularAlias("r", desc("Alias for --regular"), aliasopt(RegularOutput));
+
 static opt<string> ProcessedOutput(
     "processed",
     desc("Emit processed IR to this filepath, or stdout if nothing is provided"),
     init("-")  // default to stdout
 );
+
+static alias processedAlias("p", desc("Alias for --processed"), aliasopt(ProcessedOutput));
 
 static Expected<std::unique_ptr<MemoryBuffer>> getBitcodeFile(StringRef path) {
     Expected<std::unique_ptr<MemoryBuffer>> memoryBufferOrError = errorOrToExpected(MemoryBuffer::getFileOrSTDIN(path));
@@ -77,9 +84,19 @@ int main(int argc, char **argv, char **envp) {
 
     llvm::sys::PrintStackTraceOnErrorSignal(argv[0]);
     PrettyStackTraceProgram X(argc, argv);
-    llvm::cl::ParseCommandLineOptions(argc, argv, "BRUH (Bitcode Readable for Us Humans) v0.1");
+    llvm::cl::ParseCommandLineOptions(argc, argv, "bruh (Bitcode, Readable for Us Humans) v0.1");
 
     ExitOnError ExitOnErr("bruh (Bitcode, Readable for Us Humans): ");
+
+    // If InputFilename is "-"" we're reading data from stdin, check there's actually data there to read
+    if (InputFilename == "-") {
+        int n;
+        if (ioctl(0, FIONREAD, &n) == 0 && n == 0) {
+            LOG("You didn't specify an input, and didn't pipe any data in via stdin.\n");
+            llvm::cl::PrintHelpMessage();
+            return 1;
+        }
+    }
 
     // TODO: support multi modules via BitcodeFileContents reading APIs
     std::unique_ptr<MemoryBuffer> bitcode = ExitOnErr(getBitcodeFile(InputFilename));
@@ -94,7 +111,7 @@ int main(int argc, char **argv, char **envp) {
         raw_fd_ostream os(RegularOutput, errorCode);
 
         if (errorCode) {
-            std::cout << "error: failed to open file for regular printing: " << RegularOutput << std::endl;
+            LOG("error: failed to open file for regular printing: " << RegularOutput);
         } else {
             module->print(os, NULL, false, true);
         }
@@ -104,7 +121,7 @@ int main(int argc, char **argv, char **envp) {
     raw_fd_ostream os(ProcessedOutput, errorCode);
 
     if (errorCode) {
-        std::cout << "error: failed to open file for regular printing: " << ProcessedOutput << std::endl;
+        LOG("error: failed to open file for regular printing: " << ProcessedOutput);
     } else {
         auto demangler = new Demangler();
         auto demanglePass = new DemanglePass(module.get(), demangler);
