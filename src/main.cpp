@@ -79,7 +79,7 @@ int main(int argc, char **argv, char **envp) {
     PrettyStackTraceProgram X(argc, argv);
     llvm::cl::ParseCommandLineOptions(argc, argv, "BRUH (Bitcode Readable for Us Humans) v0.1");
 
-    ExitOnError ExitOnErr("BRUH (Bitcode Readable for Us Humans): ");
+    ExitOnError ExitOnErr("bruh (Bitcode, Readable for Us Humans): ");
 
     // TODO: support multi modules via BitcodeFileContents reading APIs
     std::unique_ptr<MemoryBuffer> bitcode = ExitOnErr(getBitcodeFile(InputFilename));
