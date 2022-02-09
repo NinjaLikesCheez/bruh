@@ -5,25 +5,31 @@
 //  Created by NinjaLikesCheez on 12/7/21.
 //
 
-#ifndef DemanglePass_h
-#define DemanglePass_h
+#ifndef DEMANGLEPASS_H_
+#define DEMANGLEPASS_H_
 
 #include <llvm/IR/InstVisitor.h>
 
 #include "Demangler.h"
 
-using namespace llvm;
-using namespace std;
+using llvm::BasicBlock;
+using llvm::Function;
+using llvm::GlobalVariable;
+using llvm::Instruction;
+using llvm::InstVisitor;
+using llvm::Module;
+using llvm::StructType;
+using llvm::Value;
 
 class DemanglePass : public InstVisitor<DemanglePass> {
-    /// The module we're operating on
+    /// Module we're operating on
     const Module *module;
     Demangler *demangler;
 
-public:
-    DemanglePass(const Module *module, Demangler *demangler) : module(module), demangler(demangler) { };
+ public:
+    DemanglePass(const Module *module, Demangler *demangler) : module(module), demangler(demangler) { }
 
-    // Compiler will be a hateful bastard if we don't defined these
+    // Compiler will be a hateful bastard if we don't define these
     void visit(Module &module) { InstVisitor<DemanglePass>::visit(module); }
     void visit(Function &function) { InstVisitor<DemanglePass>::visit(function); }
     void visit(BasicBlock &basicBlock) { InstVisitor<DemanglePass>::visit(basicBlock); }
@@ -34,11 +40,16 @@ public:
     void visitBasicBlock(BasicBlock &basicBlock);
     void visitInstruction(Instruction &instruction);
 
-private:
+ private:
+    /// Demangles the name of a struct type
     void visitStructType(StructType *type);
+
+    /// Demangles the name of a Global, as well as it's initializer
     void visitGlobal(GlobalVariable &global);
+
+    /// Demangles the name of a value
     void visitValue(Value *value);
 };
 
 
-#endif /* DemanglePass_h */
+#endif  // DEMANGLEPASS_H_

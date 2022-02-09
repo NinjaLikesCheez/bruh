@@ -1,4 +1,4 @@
-## TODO: documentation building via doxy, zlib for xar reading (future), 
+## TODO: documentation building via doxy, zlib for xar reading (future),
 project(bruh)
 
 cmake_minimum_required(VERSION 3.20)
@@ -10,7 +10,7 @@ find_package(LLVM REQUIRED CONFIG)
 message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Found LLVM-Config.cmake in ${LLVM_DIR}")
 
-if (CMAKE_COMPILER_IS_GNUXX) 
+if (CMAKE_COMPILER_IS_GNUXX)
     add_definitions(-std=c++20 -fPIC)
     add_definitions(-fno-rtti)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -22,13 +22,16 @@ set(BRUH_SRC
     src/main.cpp
     src/Demangler.cpp
     src/DemanglePass.cpp
-    src/ModulePrinter.cpp
+    src/Detrampoliner.cpp
+    src/DetrampolinePass.cpp
 )
 
 set(BRUH_INCLUDES
     include/Demangler.h
     include/DemanglePass.h
-    include/ModulePrinter.hpp
+    include/Detrampoliner.h
+    include/DetrampolinePass.h
+    include/logging.h
 )
 
 set(SWIFT_AST_INCLUDES
@@ -89,7 +92,7 @@ assign_source_group(${SWIFT_AST_INCLUDES})
 
 llvm_map_components_to_libnames(
     llvm_libs
-    support 
+    support
     core
     irreader
     object
