@@ -17,6 +17,7 @@
 #include "Demangler.h"
 #include "DemanglePass.h"
 #include "DetrampolinePass.h"
+#include "StringResolver.h"
 #include "logging.h"
 
 using llvm::cl::opt;
@@ -129,6 +130,8 @@ int main(int argc, char **argv, char **envp) {
 
         auto detrampolinePass = new DetrampolinePass(module.get());
         detrampolinePass->visit(*module);
+
+        auto stringResolver = new StringResolver(module.get());
 
         module->print(os, NULL, true, true);
     }

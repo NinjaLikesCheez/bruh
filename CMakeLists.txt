@@ -24,6 +24,7 @@ set(BRUH_SRC
     src/DemanglePass.cpp
     src/Detrampoliner.cpp
     src/DetrampolinePass.cpp
+    src/StringResolver.cpp
 )
 
 set(BRUH_INCLUDES
@@ -32,6 +33,7 @@ set(BRUH_INCLUDES
     include/Detrampoliner.h
     include/DetrampolinePass.h
     include/logging.h
+    include/StringResolver.h
 )
 
 set(SWIFT_AST_INCLUDES

@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <tuple>
+#include <vector>
 
 using std::map;
 using std::string;
