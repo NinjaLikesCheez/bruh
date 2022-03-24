@@ -11,6 +11,7 @@
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
+#include <llvm/Support/MemoryBuffer.h>
 
 #include <sys/ioctl.h>
 
@@ -131,8 +132,7 @@ int main(int argc, char **argv, char **envp) {
         auto detrampolinePass = new DetrampolinePass(module.get());
         detrampolinePass->visit(*module);
 
-        auto stringResolver = new StringResolver(module.get());
-
+        // TODO(thedderwick): String resolution takes place in BruhASMWriter, do we want to extract that to somewhere more sensible?
         module->print(os, NULL, true, true);
     }
 

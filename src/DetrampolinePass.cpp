@@ -27,7 +27,6 @@ void DetrampolinePass::visitInstruction(Instruction &instruction) {
         for (auto &F : module->functions()) {
             if (F.getName().str().find(callName) != string::npos) {
                 if (auto value = dyn_cast<Value>(&F)) {
-                    // callInst->setCalledFunction(F); // GAH
                     callInst->setCalledOperand(value);
                     break;
                 }

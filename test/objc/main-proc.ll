@@ -102,13 +102,13 @@ define internal %0* @"-[StringGetterer getStringFor:]"(%1* %0, i8* %1, i64 %2) #
   ]
 
 9:                                                ; preds = %3
-  %10 = call i8* @llvm.objc.retain(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_ to i8*)) #2
+  %10 = call i8* @llvm.objc.retain(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_("Hello") to i8*)) #2
   %11 = bitcast i8* %10 to %0*
   store %0* %11, %0** %4, align 8
   br label %15
 
 12:                                               ; preds = %3
-  %13 = call i8* @llvm.objc.retain(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_.2 to i8*)) #2
+  %13 = call i8* @llvm.objc.retain(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_.2("World") to i8*)) #2
   %14 = bitcast i8* %13 to %0*
   store %0* %14, %0** %4, align 8
   br label %15
@@ -133,7 +133,7 @@ define internal %0* @"+[SeparatorGetterer getSeparator]"(i8* %0, i8* %1) #1 {
   %4 = alloca i8*, align 8
   store i8* %0, i8** %3, align 8
   store i8* %1, i8** %4, align 8
-  %5 = tail call i8* @llvm.objc.retainAutoreleaseReturnValue(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_.4 to i8*)) #2
+  %5 = tail call i8* @llvm.objc.retainAutoreleaseReturnValue(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_.4(",") to i8*)) #2
   %6 = bitcast i8* %5 to %0*
   ret %0* %6
 }
@@ -298,7 +298,7 @@ define i32 @main(i32 %0, i8** %1, i8** %2, i8** %3) #4 {
   %20 = bitcast i8* %19 to %2*
   %21 = load i8*, i8** @OBJC_SELECTOR_REFERENCES_.26, align 8, !invariant.load !17
   %22 = bitcast %2* %20 to i8*
-  %23 = call i8* @"-[ExclaimationGetterer initWithExclaimation:]"(i8* %22, i8* %21, %0* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_.25 to %0*))
+  %23 = call i8* @"-[ExclaimationGetterer initWithExclaimation:]"(i8* %22, i8* %21, %0* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_.25("!") to %0*))
   %24 = bitcast i8* %23 to %2*
   store %2* %24, %2** %11, align 8
   %25 = load %1*, %1** %10, align 8
@@ -329,7 +329,7 @@ define i32 @main(i32 %0, i8** %1, i8** %2, i8** %3) #4 {
   %50 = bitcast %0* %49 to i8*
   %51 = notail call i8* @llvm.objc.retainAutoreleasedReturnValue(i8* %50) #2
   %52 = bitcast i8* %51 to %0*
-  notail call void (i8*, ...) @NSLog(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_.28 to i8*), %0* %31, %0* %38, %0* %45, %0* %52)
+  notail call void (i8*, ...) @NSLog(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_.28("%@%@ %@%@") to i8*), %0* %31, %0* %38, %0* %45, %0* %52)
   %53 = bitcast %0* %52 to i8*
   call void @llvm.objc.release(i8* %53) #2, !clang.imprecise_release !17
   %54 = bitcast %0* %45 to i8*

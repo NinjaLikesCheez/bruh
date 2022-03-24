@@ -20,6 +20,7 @@ endif()
 
 set(BRUH_SRC
     src/main.cpp
+    src/BruhASMWriter.cpp
     src/Demangler.cpp
     src/DemanglePass.cpp
     src/Detrampoliner.cpp
@@ -34,6 +35,7 @@ set(BRUH_INCLUDES
     include/DetrampolinePass.h
     include/logging.h
     include/StringResolver.h
+    include/StringResolverManager.h
 )
 
 set(SWIFT_AST_INCLUDES

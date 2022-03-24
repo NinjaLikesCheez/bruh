@@ -11,7 +11,6 @@
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Intrinsics.h>
 #include <llvm/IR/Module.h>
-#include <llvm/IR/Constants.h>
 
 #include <sstream>
 
@@ -19,6 +18,8 @@
 
 using llvm::ConstantArray;
 using llvm::ConstantDataArray;
+using llvm::ConstantExpr;
+using llvm::ConstantStruct;
 using llvm::ConstantInt;
 using llvm::GetElementPtrInst;
 using llvm::Intrinsic::IndependentIntrinsics;

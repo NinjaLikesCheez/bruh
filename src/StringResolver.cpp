@@ -7,6 +7,8 @@
 
 #include "StringResolver.h"
 
+#include <llvm/IR/Constants.h>
+
 #include "logging.h"
 
 using llvm::ConstantDataArray;
@@ -15,14 +17,12 @@ using llvm::ConstantStruct;
 
 void StringResolver::visit() {
     for (const auto &global : module->globals()) {
-        // LOG_LLVM_REF("global: ", global);
-
-        if (global.hasInitializer()) {
+        if (global.getName().find("_unnamed_cfstring") != std::string::npos) {
+            preprocessUnnamedCFString(global);
+        } else if (global.hasInitializer()) {
             if (const auto &constant = dyn_cast<ConstantDataArray>(global.getInitializer())) {
                 constantStringToValue[&global] = constant->getAsString();
             }
-        } else if (global.getName().find("_unnamed_cfstring") != std::string::npos) {
-            preprocessUnnamedCFString(global);
         }
     }
 }
@@ -56,7 +56,12 @@ string StringResolver::resolve(const GlobalVariable *global) {
     }
 
     if (constantStringToValue.find(key) != constantStringToValue.end()) {
-        return constantStringToValue[key];
+        auto result = constantStringToValue[key];
+        if (result.back() == '\0') {
+            result.pop_back();
+        }
+
+        return result;
     }
 
     return {};
