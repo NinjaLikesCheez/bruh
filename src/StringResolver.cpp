@@ -16,15 +16,19 @@
 
 using llvm::ConstantDataArray;
 using llvm::ConstantExpr;
-using llvm::ConstantStruct;
 
 void StringResolver::visit() {
     for (const auto &global : module->globals()) {
         if (global.getName().find("_unnamed_cfstring") != std::string::npos) {
             preprocessUnnamedCFString(global);
         } else if (global.hasInitializer()) {
-            if (const auto &constant = dyn_cast<ConstantDataArray>(global.getInitializer())) {
+            auto initializer = global.getInitializer();
+
+            if (const auto &constant = dyn_cast<ConstantDataArray>(initializer)) {
                 constantStringToValue[&global] = constant->getAsString();
+            } else if (const auto &constantStruct = dyn_cast<ConstantStruct>(initializer)) {
+                // Rust string
+                processConstantStructure(constantStruct, global);
             }
         }
     }
@@ -68,6 +72,25 @@ string StringResolver::resolve(const GlobalVariable *global) {
     }
 
     return {};
+}
+
+void StringResolver::processConstantStructure(const ConstantStruct *constant, const GlobalVariable &global) {
+    auto numberOfElements = constant->getType()->getNumElements();
+
+    string result = "";
+
+    for (unsigned i = 0; i < numberOfElements; i++) {
+        auto *element = constant->getAggregateElement(i);
+        if (const auto &constantDataArray = dyn_cast<ConstantDataArray>(element)) {
+            if (constantDataArray->isString()) {
+                result.append(constantDataArray->getAsString());
+            }
+        }
+    }
+
+    if (!result.empty()) {
+        constantStringToValue[&global] = result;
+    }
 }
 
 // MARK: Static methods

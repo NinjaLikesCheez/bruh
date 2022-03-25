@@ -1,4 +1,4 @@
-; ModuleID = '/Users/thedderwick-admin/dev/NinjaLikesCheez/bruh/test/rust/main.bc'
+; ModuleID = 'test/rust/main.bc'
 source_filename = "main.cbc7ddee-cgu.0"
 target datalayout = "e-m:o-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-apple-macosx10.7.0"
@@ -67,7 +67,7 @@ start:
   br label %bb1
 
 bb1:                                              ; preds = %start
-  %0 = call nonnull i8* @"core::pitr::non_null::NonNull$LT$T$GT$::new_unchecked::h52016c20d23e96b9"(i8* %_2)
+  %0 = call nonnull i8* @"core::ptr::non_null::NonNull$LT$T$GT$::new_unchecked::h52016c20d23e96b9"(i8* %_2)
   br label %bb2
 
 bb2:                                              ; preds = %bb1
@@ -193,7 +193,7 @@ start:
   %0 = bitcast i64** %_8 to void ()**
   store void ()* %main, void ()** %0, align 8
   %_5.0 = bitcast i64** %_8 to {}*
-  %1 = call i64 @"std::rt::lang_start_internal::h59ad95b3bebc83b2"({}* nonnull align 1 %_5.0, [3 x i64]* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8], i8*, i8*, i8*, [0 x i8] }>* @vtable.0 to [3 x i64]*), i64 %argc, i8** %argv)
+  %1 = call i64 @"std::rt::lang_start_internal::h59ad95b3bebc83b2"({}* nonnull align 1 %_5.0, [3 x i64]* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8], i8*, i8*, i8*, [0 x i8] }>* @vtable.0("\08\00\00\00\00\00\00\00\08\00\00\00\00\00\00") to [3 x i64]*), i64 %argc, i8** %argv)
   store i64 %1, i64* %_4, align 8
   br label %bb1
 
@@ -379,7 +379,7 @@ bb5:                                              ; preds = %bb3
   ret void
 
 bb4:                                              ; preds = %bb3
-  call void @"core::panicking::panic::h709f8bbcee9c47c1"([0 x i8]* nonnull align 1 bitcast (<{ [12 x i8] }>* @alloc62 to [0 x i8]*), i64 12, %"core::panic::location::Location"* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8] }>* @alloc64 to %"core::panic::location::Location"*)) #12
+  call void @"core::panicking::panic::h709f8bbcee9c47c1"([0 x i8]* nonnull align 1 bitcast (<{ [12 x i8] }>* @alloc62("invalid args") to [0 x i8]*), i64 12, %"core::panic::location::Location"* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8] }>* @alloc64("K\00\00\00\00\00\00\00k\01\00\00\0D\00\00") to %"core::panic::location::Location"*)) #12
   unreachable
 }
 
@@ -1009,7 +1009,7 @@ bb4:                                              ; preds = %bb3
   br label %bb5
 
 bb5:                                              ; preds = %bb4
-  %1 = call { i64, i64 } @"core::result::Result$LT$T$C$E$GT$::unwrap::h5fec2cd983759d5c"(i64 %_10.0, i64 %_10.1, %"core::panic::location::Location"* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8] }>* @alloc66 to %"core::panic::location::Location"*))
+  %1 = call { i64, i64 } @"core::result::Result$LT$T$C$E$GT$::unwrap::h5fec2cd983759d5c"(i64 %_10.0, i64 %_10.1, %"core::panic::location::Location"* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8] }>* @alloc66("P\00\00\00\00\00\00\00\18\01\00\009\00\00") to %"core::panic::location::Location"*))
   %2 = extractvalue { i64, i64 } %1, 0
   %3 = extractvalue { i64, i64 } %1, 1
   br label %bb6
@@ -1523,7 +1523,7 @@ bb3:                                              ; preds = %start
 
 bb1:                                              ; preds = %start
   %_6.0 = bitcast %"core::alloc::layout::LayoutError"* %e to {}*
-  invoke void @"core::result::unwrap_failed::hd3218c9fc9801751"([0 x i8]* nonnull align 1 bitcast (<{ [43 x i8] }>* @alloc67 to [0 x i8]*), i64 43, {}* nonnull align 1 %_6.0, [3 x i64]* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8], i8*, [0 x i8] }>* @vtable.1 to [3 x i64]*), %"core::panic::location::Location"* align 8 dereferenceable(24) %2) #12
+  invoke void @"core::result::unwrap_failed::hd3218c9fc9801751"([0 x i8]* nonnull align 1 bitcast (<{ [43 x i8] }>* @alloc67("called `Result::unwrap()` on an `Err` value") to [0 x i8]*), i64 43, {}* nonnull align 1 %_6.0, [3 x i64]* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8], i8*, [0 x i8] }>* @vtable.1("\00\00\00\00\00\00\00\00\01\00\00\00\00\00\00") to [3 x i64]*), %"core::panic::location::Location"* align 8 dereferenceable(24) %2) #12
           to label %unreachable unwind label %cleanup
 
 unreachable:                                      ; preds = %bb1
@@ -2393,7 +2393,7 @@ bb2:                                              ; preds = %bb1
   ret i64 %1
 
 panic:                                            ; preds = %bb1
-  call void @"core::panicking::panic::h709f8bbcee9c47c1"([0 x i8]* nonnull align 1 bitcast ([25 x i8]* @str.2 to [0 x i8]*), i64 25, %"core::panic::location::Location"* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8] }>* @alloc72 to %"core::panic::location::Location"*)) #12
+  call void @"core::panicking::panic::h709f8bbcee9c47c1"([0 x i8]* nonnull align 1 bitcast ([25 x i8]* @str.2("attempt to divide by zero") to [0 x i8]*), i64 25, %"core::panic::location::Location"* align 8 dereferenceable(24) bitcast (<{ i8*, [16 x i8] }>* @alloc72("L\00\00\00\00\00\00\00\9A\01\00\00\09\00\00") to %"core::panic::location::Location"*)) #12
   unreachable
 }
 
@@ -2825,7 +2825,7 @@ bb2:                                              ; preds = %bb1
   %5 = getelementptr inbounds { i8*, i64* }, { i8*, i64* }* %3, i32 0, i32 1
   store i64* %_14.1, i64** %5, align 8
   %_6.0 = bitcast [1 x { i8*, i64* }]* %_9 to [0 x { i8*, i64* }]*
-  call void @"core::fmt::Arguments::new_v1::hde53115203193b6d"(%"core::fmt::Arguments"* noalias nocapture sret(%"core::fmt::Arguments") dereferenceable(48) %_2, [0 x { [0 x i8]*, i64 }]* nonnull align 8 bitcast (<{ i8*, [8 x i8], i8*, [8 x i8] }>* @alloc3 to [0 x { [0 x i8]*, i64 }]*), i64 2, [0 x { i8*, i64* }]* nonnull align 8 %_6.0, i64 1)
+  call void @"core::fmt::Arguments::new_v1::hde53115203193b6d"(%"core::fmt::Arguments"* noalias nocapture sret(%"core::fmt::Arguments") dereferenceable(48) %_2, [0 x { [0 x i8]*, i64 }]* nonnull align 8 bitcast (<{ i8*, [8 x i8], i8*, [8 x i8] }>* @alloc3("\05\00\00\00\00\00\00\00\01\00\00\00\00\00\00") to [0 x { [0 x i8]*, i64 }]*), i64 2, [0 x { i8*, i64* }]* nonnull align 8 %_6.0, i64 1)
   br label %bb3
 
 bb3:                                              ; preds = %bb2
@@ -2853,7 +2853,7 @@ bb6:                                              ; preds = %bb5
   %11 = getelementptr inbounds { i8*, i64* }, { i8*, i64* }* %9, i32 0, i32 1
   store i64* %_30.1, i64** %11, align 8
   %_22.0 = bitcast [1 x { i8*, i64* }]* %_25 to [0 x { i8*, i64* }]*
-  invoke void @"core::fmt::Arguments::new_v1::hde53115203193b6d"(%"core::fmt::Arguments"* noalias nocapture sret(%"core::fmt::Arguments") dereferenceable(48) %_18, [0 x { [0 x i8]*, i64 }]* nonnull align 8 bitcast (<{ i8*, [8 x i8], i8*, [8 x i8] }>* @alloc9 to [0 x { [0 x i8]*, i64 }]*), i64 2, [0 x { i8*, i64* }]* nonnull align 8 %_22.0, i64 1)
+  invoke void @"core::fmt::Arguments::new_v1::hde53115203193b6d"(%"core::fmt::Arguments"* noalias nocapture sret(%"core::fmt::Arguments") dereferenceable(48) %_18, [0 x { [0 x i8]*, i64 }]* nonnull align 8 bitcast (<{ i8*, [8 x i8], i8*, [8 x i8] }>* @alloc9("\05\00\00\00\00\00\00\00\01\00\00\00\00\00\00") to [0 x { [0 x i8]*, i64 }]*), i64 2, [0 x { i8*, i64* }]* nonnull align 8 %_22.0, i64 1)
           to label %bb7 unwind label %cleanup
 
 bb14:                                             ; preds = %cleanup
@@ -2908,7 +2908,7 @@ bb11:                                             ; preds = %bb10
   %27 = getelementptr inbounds { i8*, i64* }, { i8*, i64* }* %25, i32 0, i32 1
   store i64* %_46.1, i64** %27, align 8
   %_38.0 = bitcast [1 x { i8*, i64* }]* %_41 to [0 x { i8*, i64* }]*
-  call void @"core::fmt::Arguments::new_v1::hde53115203193b6d"(%"core::fmt::Arguments"* noalias nocapture sret(%"core::fmt::Arguments") dereferenceable(48) %_34, [0 x { [0 x i8]*, i64 }]* nonnull align 8 bitcast (<{ i8*, [8 x i8], i8*, [8 x i8] }>* @alloc15 to [0 x { [0 x i8]*, i64 }]*), i64 2, [0 x { i8*, i64* }]* nonnull align 8 %_38.0, i64 1)
+  call void @"core::fmt::Arguments::new_v1::hde53115203193b6d"(%"core::fmt::Arguments"* noalias nocapture sret(%"core::fmt::Arguments") dereferenceable(48) %_34, [0 x { [0 x i8]*, i64 }]* nonnull align 8 bitcast (<{ i8*, [8 x i8], i8*, [8 x i8] }>* @alloc15("\08\00\00\00\00\00\00\00\01\00\00\00\00\00\00") to [0 x { [0 x i8]*, i64 }]*), i64 2, [0 x { i8*, i64* }]* nonnull align 8 %_38.0, i64 1)
   br label %bb12
 
 bb12:                                             ; preds = %bb11
@@ -2928,7 +2928,7 @@ start:
 ; Function Attrs: uwtable
 define internal void @"main::getString::hd7ea96afcffe1308"(%"alloc::string::String"* noalias nocapture sret(%"alloc::string::String") dereferenceable(24) %0) unnamed_addr #2 {
 start:
-  call void @"_$LT$alloc..string..String$u20$as$u20$core..convert..From$LT$$RF$str$GT$$GT$::from::h96633492d5c11661"(%"alloc::string::String"* noalias nocapture sret(%"alloc::string::String") dereferenceable(24) %0, [0 x i8]* nonnull align 1 bitcast (<{ [13 x i8] }>* @alloc73 to [0 x i8]*), i64 13)
+  call void @"_$LT$alloc..string..String$u20$as$u20$core..convert..From$LT$$RF$str$GT$$GT$::from::h96633492d5c11661"(%"alloc::string::String"* noalias nocapture sret(%"alloc::string::String") dereferenceable(24) %0, [0 x i8]* nonnull align 1 bitcast (<{ [13 x i8] }>* @alloc73("Hello, World!") to [0 x i8]*), i64 13)
   br label %bb1
 
 bb1:                                              ; preds = %start
@@ -2955,7 +2955,7 @@ bb1:                                              ; preds = %start
   %3 = getelementptr inbounds { i8*, i64* }, { i8*, i64* }* %1, i32 0, i32 1
   store i64* %_15.1, i64** %3, align 8
   %_8.0 = bitcast [1 x { i8*, i64* }]* %_11 to [0 x { i8*, i64* }]*
-  call void @"core::fmt::Arguments::new_v1::hde53115203193b6d"(%"core::fmt::Arguments"* noalias nocapture sret(%"core::fmt::Arguments") dereferenceable(48) %_4, [0 x { [0 x i8]*, i64 }]* nonnull align 8 bitcast (<{ i8*, [8 x i8], i8*, [8 x i8] }>* @alloc32 to [0 x { [0 x i8]*, i64 }]*), i64 2, [0 x { i8*, i64* }]* nonnull align 8 %_8.0, i64 1)
+  call void @"core::fmt::Arguments::new_v1::hde53115203193b6d"(%"core::fmt::Arguments"* noalias nocapture sret(%"core::fmt::Arguments") dereferenceable(48) %_4, [0 x { [0 x i8]*, i64 }]* nonnull align 8 bitcast (<{ i8*, [8 x i8], i8*, [8 x i8] }>* @alloc32("\0C\00\00\00\00\00\00\00\01\00\00\00\00\00\00") to [0 x { [0 x i8]*, i64 }]*), i64 2, [0 x { i8*, i64* }]* nonnull align 8 %_8.0, i64 1)
   br label %bb2
 
 bb2:                                              ; preds = %bb1

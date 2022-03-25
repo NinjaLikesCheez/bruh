@@ -9,6 +9,7 @@
 #define STRINGRESOLVER_H_
 
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Constants.h>
 #include <llvm/IR/Module.h>
 #include <llvm/ADT/DenseMap.h>
 
@@ -18,6 +19,7 @@ using llvm::APInt;
 using llvm::Module;
 using llvm::DenseMap;
 using llvm::GlobalVariable;
+using llvm::ConstantStruct;
 
 using std::string;
 
@@ -31,6 +33,7 @@ class StringResolver {
     void visit();
 
     void preprocessUnnamedCFString(const GlobalVariable &global);
+    void processConstantStructure(const ConstantStruct *constant, const GlobalVariable &global);
 
  public:
     explicit StringResolver(const Module *module) : module(module) { visit(); }

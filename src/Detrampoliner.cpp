@@ -252,6 +252,7 @@ Detrampoliner::DetrampolineResult Detrampoliner::detrampoline(const CallInst &ca
         return {callType, selfName, selectorName};
     }
 
+    // TODO(ninjalikescheez): objcMsgSendSuper2 doesn't appear to be working well
     switch (trampoline) {
     case objc_msgSend:
     case objc_msgSendSuper:

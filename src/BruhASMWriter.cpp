@@ -93,6 +93,7 @@
 
 using namespace llvm;
 
+// TODO(NinjaLikesCheez): this is going to cause _so_ many issues in the future... come up with a prefixed version of these classes?
 // ADDED: used to track when string resolution should take place
 static bool shouldResolveStrings = false;
 
