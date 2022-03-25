@@ -64,6 +64,8 @@ add_executable(bruh
     ${SWIFT_AST_INCLUDES}
 )
 
+set_target_properties(bruh PROPERTIES CXX_VISIBILITY_PRESET hidden)
+
 target_include_directories(bruh PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${LLVM_INCLUDE_DIRS}

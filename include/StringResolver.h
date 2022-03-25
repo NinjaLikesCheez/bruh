@@ -14,6 +14,7 @@
 
 #include <string>
 
+using llvm::APInt;
 using llvm::Module;
 using llvm::DenseMap;
 using llvm::GlobalVariable;
@@ -35,6 +36,7 @@ class StringResolver {
     explicit StringResolver(const Module *module) : module(module) { visit(); }
 
     string resolve(const GlobalVariable *global);
+    static string resolve(const APInt &value);
 };
 
 #endif  // STRINGRESOLVER_H_

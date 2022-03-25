@@ -128,7 +128,7 @@ entry:
 ; Function Attrs: norecurse nounwind readnone willreturn
 define hidden swiftcc { i64, %swift.bridge* } @"static main.StringGetterer.getString() -> Swift.String"(%swift.type* nocapture readnone swiftself %0) local_unnamed_addr #0 {
 entry:
-  ret { i64, %swift.bridge* } { i64 8247308216227950419, %swift.bridge* inttoptr (i64 -1513209474789708183 to %swift.bridge*) }
+  ret { i64, %swift.bridge* } { i64 8247308216227950419("Some Str"), %swift.bridge* inttoptr (i64 -1513209474789708183("ing") to %swift.bridge*) }
 }
 
 ; Function Attrs: argmemonly nofree nosync nounwind willreturn
@@ -175,7 +175,7 @@ entry:
 ; Function Attrs: norecurse nounwind readnone willreturn
 define internal swiftcc { i64, %swift.bridge* } @"protocol witness for static main.StringGetter.getString() -> Swift.String in conformance main.StringGetterer : main.StringGetter in main"(%swift.type* nocapture readnone swiftself %0, %swift.type* nocapture readnone %Self, i8** nocapture readnone %SelfWitnessTable) #0 {
 entry:
-  ret { i64, %swift.bridge* } { i64 8247308216227950419, %swift.bridge* inttoptr (i64 -1513209474789708183 to %swift.bridge*) }
+  ret { i64, %swift.bridge* } { i64 8247308216227950419("Some Str"), %swift.bridge* inttoptr (i64 -1513209474789708183("ing") to %swift.bridge*) }
 }
 
 ; Function Attrs: norecurse nounwind readnone willreturn
@@ -280,7 +280,7 @@ entry:
   %47 = bitcast i64* %46 to %swift.type**
   store %swift.type* @"type metadata for Swift.String", %swift.type** %47, align 8
   %._guts._object._countAndFlagsBits._value = bitcast %swift.refcounted* %43 to i64*
-  store i64 -3458764513820540894, i64* %._guts._object._countAndFlagsBits._value, align 8
+  store i64 -3458764513820540894("\22"), i64* %._guts._object._countAndFlagsBits._value, align 8
   %._guts._object._object = getelementptr inbounds %swift.refcounted, %swift.refcounted* %40, i64 2, i32 1
   %48 = bitcast i64* %._guts._object._object to %swift.bridge**
   store %swift.bridge* inttoptr (i64 or (i64 sub (i64 ptrtoint ([35 x i8]* @1("StringGetterer string: Some String") to i64), i64 32), i64 -9223372036854775808) to %swift.bridge*), %swift.bridge** %48, align 8
@@ -306,7 +306,7 @@ entry:
   call void @swift_bridgeObjectRelease(%swift.bridge* %56) #3
   %._guts9._object._countAndFlagsBits._value = getelementptr inbounds %TSS, %TSS* %1, i64 0, i32 0, i32 0, i32 0, i32 0
   %._guts9._object._object = getelementptr inbounds %TSS, %TSS* %1, i64 0, i32 0, i32 0, i32 1
-  store i64 -3458764513820540895, i64* %._guts9._object._countAndFlagsBits._value, align 8
+  store i64 -3458764513820540895("!"), i64* %._guts9._object._countAndFlagsBits._value, align 8
   store %swift.bridge* inttoptr (i64 or (i64 sub (i64 ptrtoint ([34 x i8]* @2("InterpolatedStringGetter string: ") to i64), i64 32), i64 -9223372036854775808) to %swift.bridge*), %swift.bridge** %._guts9._object._object, align 8
   call swiftcc void @"Swift.String.append(Swift.String) -> ()"(i64 -3458764513820540909, %swift.bridge* inttoptr (i64 or (i64 sub (i64 ptrtoint ([20 x i8]* @0("String: Some String") to i64), i64 32), i64 -9223372036854775808) to %swift.bridge*), %TSS* nocapture nonnull swiftself dereferenceable(16) %1)
   %57 = load i64, i64* %._guts9._object._countAndFlagsBits._value, align 8
@@ -534,7 +534,7 @@ entryresume.0:
   %4 = tail call i8** @llvm.swift.async.context.addr() #3
   store i8* %3, i8** %4, align 8
   %async.ctx.frameptr1 = getelementptr inbounds i8, i8* %3, i64 24
-  %.reload.addr86 = getelementptr inbounds i8, i8* %3, i64 104
+  %.reload.addr86 = getelementptr inbounds i8, i8* %3, i64 104("h")
   %5 = bitcast i8* %.reload.addr86 to i8**
   %.reload87 = load i8*, i8** %5, align 8
   %6 = load i8*, i8** %2, align 8

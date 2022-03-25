@@ -132,7 +132,7 @@ int main(int argc, char **argv, char **envp) {
         auto detrampolinePass = new DetrampolinePass(module.get());
         detrampolinePass->visit(*module);
 
-        // TODO(thedderwick): String resolution takes place in BruhASMWriter, do we want to extract that to somewhere more sensible?
+        // TODO(NinjaLikesCheez): String resolution takes place in BruhASMWriter, do we want to extract that to somewhere more sensible?
         module->print(os, NULL, true, true);
     }
 

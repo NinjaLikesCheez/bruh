@@ -91,10 +91,32 @@
 // ADDED: Import the string resolution manager
 #include "StringResolverManager.h"
 
-// ADDED: track when global writing has been completed so we don't resolve the initial globals
-static bool hasFinishedGlobalPrinting = false;
-
 using namespace llvm;
+
+// ADDED: used to track when string resolution should take place
+static bool shouldResolveStrings = false;
+
+// ADDED: prints a constant string value in the format: `("constant string")`
+static void printResolvedConstantStringValue(std::string value, raw_ostream &Out) {
+  Out << "(\"";
+  printEscapedString(value, Out);
+  Out << "\")";
+}
+
+// ADDED: prints a value (if it is supported by StringResolverManager)
+static void printConstantStringValue(const Value *value, raw_ostream &Out) {
+  std::string stringToPrint = "";
+
+  if (const auto &global = dyn_cast<GlobalVariable>(value)) {
+    stringToPrint = StringResolverManager::instance()->resolve(global);
+  } else if (const auto &constantInt = dyn_cast<ConstantInt>(value)) {
+    stringToPrint = StringResolverManager::instance()->resolve(constantInt->getValue());
+  }
+
+  if (!stringToPrint.empty()) {
+    printResolvedConstantStringValue(stringToPrint, Out);
+  }
+}
 
 // Make virtual table appear in this compilation unit.
 AssemblyAnnotationWriter::~AssemblyAnnotationWriter() = default;
@@ -1340,7 +1362,12 @@ static void WriteConstantInternal(raw_ostream &Out, const Constant *CV,
       Out << (CI->getZExtValue() ? "true" : "false");
       return;
     }
+
     Out << CI->getValue();
+    if (shouldResolveStrings) {
+      printConstantStringValue(CI, Out);
+    }
+
     return;
   }
 
@@ -2404,11 +2431,8 @@ static void WriteAsOperandInternal(raw_ostream &Out, const Value *V,
     PrintLLVMName(Out, V);
 
     // ADDED: objc uses named globals to reference strings, handle those cases
-    if (isa<GlobalVariable>(V) && hasFinishedGlobalPrinting) {
-      const auto &global = cast<GlobalVariable>(V);
-      auto resolvedName = StringResolverManager::instance()->resolveGlobal(global);
-      if (!resolvedName.empty())
-        Out << "(\"" << resolvedName << "\")";
+    if (isa<GlobalVariable>(V) && shouldResolveStrings) {
+      printConstantStringValue(cast<GlobalVariable>(V), Out);
     }
 
     return;
@@ -2484,13 +2508,8 @@ static void WriteAsOperandInternal(raw_ostream &Out, const Value *V,
     Out << Prefix << Slot;
 
     // ADDED: Swift will have a reference to an unnamed (i.e. @<slot>) global, print out the resolved constant string
-    if (isa<GlobalVariable>(V) && hasFinishedGlobalPrinting) {
-      const auto &global = cast<GlobalVariable>(V);
-      auto resolvedString = StringResolverManager::instance()->resolveGlobal(global);
-
-      if (!resolvedString.empty()) {
-        Out << "(\"" << resolvedString << "\")";
-      }
+    if (isa<GlobalVariable>(V) && shouldResolveStrings) {
+      printConstantStringValue(cast<GlobalVariable>(V), Out);
     }
   } else {
     Out << "<badref>";
@@ -2843,7 +2862,7 @@ void AssemblyWriter::printModule(const Module *M) {
     printGlobal(&GV); Out << '\n';
   }
 
-  hasFinishedGlobalPrinting = true;
+  shouldResolveStrings = true;
 
   // Output all aliases.
   if (!M->alias_empty()) Out << "\n";
@@ -2860,6 +2879,8 @@ void AssemblyWriter::printModule(const Module *M) {
     Out << '\n';
     printFunction(&F);
   }
+
+  shouldResolveStrings = false;
 
   // Output global use-lists.
   printUseLists(nullptr);

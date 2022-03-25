@@ -8,6 +8,7 @@
 
 #include "StringResolver.h"
 
+using llvm::APInt;
 using llvm::DenseMap;
 using llvm::GlobalVariable;
 using llvm::Module;
@@ -16,21 +17,28 @@ class StringResolverManager {
  private:
     DenseMap<const Module *, StringResolver *> moduleToStringResolver;
 
+    StringResolver * getStringResolver(const Module *module) {
+        if (moduleToStringResolver.find(module) == moduleToStringResolver.end()) {
+            StringResolver *SR = new StringResolver(module);
+            moduleToStringResolver[module] = SR;
+        }
+
+        return moduleToStringResolver[module];
+    }
+
  public:
     static StringResolverManager *instance() {
         static StringResolverManager manager;
         return &manager;
     }
 
-    string resolveGlobal(const GlobalVariable *global) {
+    string resolve(const GlobalVariable *global) {
         auto M = global->getParent();
-        if (moduleToStringResolver.find(M) == moduleToStringResolver.end()) {
-            StringResolver *SR = new StringResolver(M);
-            moduleToStringResolver[M] = SR;
-        }
+        return getStringResolver(M)->resolve(global);
+    }
 
-        auto stringResolver = moduleToStringResolver[M];
-        return stringResolver->resolve(global);
+    string resolve(const APInt &value) {
+        return StringResolver::resolve(value);
     }
 };
 
