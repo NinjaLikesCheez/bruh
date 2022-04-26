@@ -22,7 +22,7 @@ For example, it will take CallSites like these:
 %0 = call nonnull i8* @"_ZN4core3ptr8non_null16NonNull$LT$T$GT$13new_unchecked17h52016c20d23e96b9E"(i8* %_2)
 ```
 
-And resolve them to:
+And change them to:
 
 ```llvm
 # objc
@@ -41,15 +41,19 @@ And resolve them to:
 
 ## Requirements
 
-- A modern LLVM (has been tested with 14.0)
+- A modern build of LLVM (has been tested with 14.0)
 - A modern compiler (has been tested with Clang 13.0)
+- macOS
+  - see [Limitations](#limitations)
 
 ## Building
 
-bruh uses a CMake build system, so create a build directory and issue the following command:
+bruh uses the CMake build system, so create a build directory and run the following command:
 
 ```bash
-cmake <path to bruh directory>
+cd bruh
+mkdir build && cd build
+cmake ../
 ```
 
 Optionally, you may need to pass `-DLLVM_DIR` if you don't have LLVM on your `PATH`.
@@ -73,11 +77,15 @@ General options:
 
 There are a set of test files in `test/<lang>/main.bc` that you can test, currently bruh requires a bitcode file - not a binary, or ll file.
 
+### Example
+
+```bash
+./bruh --processed=test/objc/main-proc.ll test/objc/main.bc
+```
+
 ## Limitations
 
-Currently, this tool (in the form provided) will only work on macOS, however if you recompile [Swifts Demangling library](https://github.com/apple/swift/tree/main/lib/Demangling) there shouldn't be an issue running this on linux.
-
-As well, this currently only support LLVM demangling, Swift, and Detrampolining of ObjC trampoline calls.
+Currently, this tool (in the form provided) will only work on macOS, however if you recompile [Swifts Demangling library](https://github.com/apple/swift/tree/main/lib/Demangling) there shouldn't be an issue running this on linux. Support for linux will be added in the [Future](#future).
 
 ## Future
 
@@ -90,3 +98,8 @@ As well, this currently only support LLVM demangling, Swift, and Detrampolining 
   - call sites (placing arguments in the call name)
   - module printing for ease of reading
 - Collapse bitcasts as _most_ of the time you don't really need to read them
+- Def-Use/Call Flow annotations to easier follow usage of registers.
+
+## License
+
+bruh is licensed under LGPL 3.0. See [LICENSE](LICENSE).
