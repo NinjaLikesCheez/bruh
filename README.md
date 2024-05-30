@@ -41,6 +41,7 @@ And change them to:
 
 ## Requirements
 
+- A modern build of Swift (has been tested with 5.10)
 - A modern build of LLVM (has been tested with 14.0)
 - A modern compiler (has been tested with Clang 13.0)
 - macOS
@@ -51,9 +52,8 @@ And change them to:
 bruh uses the CMake build system, so create a build directory and run the following command:
 
 ```bash
-cd bruh
 mkdir build && cd build
-cmake ../
+cmake -GNinja -DSWIFT_BUILD_DIRECTORY="/path/to/swift/build/" -DSWIFT_SOURCE_DIRECTORY="/path/to/swift/source" ../
 ```
 
 Optionally, you may need to pass `-DLLVM_DIR` if you don't have LLVM on your `PATH`.
@@ -89,9 +89,6 @@ Currently, this tool (in the form provided) will only work on macOS, however if 
 
 ## Future
 
-- Binary (__LLVM,__bitcode) igestion
-  - BCSymbolMap ingestion
-  - #hidden resolution
 - Linux support
 - Cleaning up of:
   - whitespace (explode structs to be readable etc)
