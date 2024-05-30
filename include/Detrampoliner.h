@@ -6,6 +6,7 @@
 //
 
 #include <llvm/IR/Instructions.h>
+#include <llvm/IR/Constants.h>
 
 #include <map>
 #include <string>
