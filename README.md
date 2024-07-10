@@ -53,7 +53,7 @@ bruh uses the CMake build system, so create a build directory and run the follow
 
 ```bash
 mkdir build && cd build
-cmake -GNinja -DSWIFT_BUILD_DIRECTORY="/path/to/swift/build/" -DSWIFT_SOURCE_DIRECTORY="/path/to/swift/source" ../
+cmake -GNinja -DSWIFT_BUILD_PATH="/path/to/swift/build/" -DSWIFT_SOURCE_PATH="/path/to/swift/source" ../
 ```
 
 Optionally, you may need to pass `-DLLVM_DIR` if you don't have LLVM on your `PATH`.
