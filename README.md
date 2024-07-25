@@ -56,7 +56,7 @@ mkdir build && cd build
 cmake -GNinja -DSWIFT_BUILD_PATH="/path/to/swift/build/" -DSWIFT_SOURCE_PATH="/path/to/swift/source" ../
 ```
 
-Optionally, you may need to pass `-DLLVM_DIR` if you don't have LLVM on your `PATH`.
+Optionally, you may need to pass `-DLLVM_DIR` if you don't have LLVM on your `PATH`. You should use the Apple fork of the LLVM project - if you built Swift, you can use the same LLVM it uses. If you don't, you will see `Invalid record` errors when using `bruh`.
 
 ## Running
 
