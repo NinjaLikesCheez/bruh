@@ -72,6 +72,7 @@ OPTIONS:
 General options:
 
   --processed=<string>                - Emit processed IR to this filepath, or stdout if nothing is provided
+  --passes=<string>                   - Comma-separated list of passes to run (demangler,detrampoline,def-use)
   --regular=<string>                  - Emit unprocessed IR to this filepath
 ```
 
