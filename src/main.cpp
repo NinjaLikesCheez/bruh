@@ -6,12 +6,15 @@
 //
 
 #include <llvm/Analysis/InstructionSimplify.h>
-#include <llvm/Bitcode/BitcodeReader.h>
 #include <llvm/IR/LLVMContext.h>
+#include <llvm/IRReader/IRReader.h>
 #include <llvm/Support/CommandLine.h>
+#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/MemoryBuffer.h>
+#include <llvm/Support/Path.h>
 #include <llvm/Support/PrettyStackTrace.h>
 #include <llvm/Support/Signals.h>
+#include <llvm/Support/SourceMgr.h>
 
 #include <sys/ioctl.h>
 
@@ -21,12 +24,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "DefUsePass.h"
 #include "DemanglePass.h"
 #include "Demangler.h"
 #include "DetrampolinePass.h"
 #include "logging.h"
 
-using llvm::createStringError;
 using llvm::ExitOnError;
 using llvm::Expected;
 using llvm::LLVMContext;
@@ -44,21 +47,30 @@ using llvm::cl::Positional;
 using std::string;
 
 // CLI Options
-static opt<string> InputFilename(Positional, desc("<bitcode file>"),
-                                 init("-") // default to stdout
-);
+static opt<string> InputFilename(Positional,
+                                 desc("<bitcode (.bc) or IR (.ll) file>"),
+                                 init("-")); // default to stdin
+
+// -o/--output: directory for all artifacts; processed and regular IR default
+// to paths under this directory when -p/-r are not given explicit paths.
+static opt<string> Output("output",
+                          desc("Directory path for output artifacts"),
+                          init("output"));
+
+static alias outputAlias("o", desc("Alias for --output"), aliasopt(Output));
 
 static opt<string> RegularOutput("regular",
-                                 desc("Emit unprocessed IR to this filepath"));
+                                 desc("Emit unprocessed IR to this filepath "
+                                      "(default: <output-dir>/<basename>-regular.ll)"));
 
 static alias regularAlias("r", desc("Alias for --regular"),
                           aliasopt(RegularOutput));
 
 static opt<string> ProcessedOutput(
     "processed",
-    desc(
-        "Emit processed IR to this filepath, or stdout if nothing is provided"),
-    init("-") // default to stdout
+    desc("Emit processed IR to this filepath "
+         "(default: <output-dir>/<basename>.ll)"),
+    init("-")
 );
 
 static alias processedAlias("p", desc("Alias for --processed"),
@@ -71,26 +83,34 @@ static opt<string> Passes("passes",
 struct PassSpec {
   string name;
   bool enabledByDefault;
-  std::function<void(Module &module)> run;
+  std::function<void(Module &module, const string &outputDir,
+                     const string &inputFilename)>
+      run;
 };
 
-static Expected<std::unique_ptr<MemoryBuffer>> getBitcodeFile(StringRef path) {
-  Expected<std::unique_ptr<MemoryBuffer>> memoryBufferOrError =
-      errorOrToExpected(MemoryBuffer::getFileOrSTDIN(path));
+static Expected<std::unique_ptr<MemoryBuffer>> getInputFile(StringRef path) {
+  return errorOrToExpected(MemoryBuffer::getFileOrSTDIN(path));
+}
 
-  if (auto error = memoryBufferOrError.takeError()) {
-    return std::move(error);
+// Basename for default output paths under the output directory (e.g. main.ll,
+// stdin.ll when reading from stdin).
+static string getOutputBasename(const string &inputFilename) {
+  if (inputFilename == "-") {
+    return "stdin.ll";
   }
-
-  auto memoryBuffer = std::move(*memoryBufferOrError);
-
-  if (memoryBuffer->getBufferSize() & 3) {
-    return createStringError(
-        std::errc::illegal_byte_sequence,
-        "Bitcode stream should be a multiple of 4 bytes in length");
+  string base = llvm::sys::path::filename(inputFilename).str();
+  if (base.empty()) {
+    return "stdin.ll";
   }
-
-  return std::move(memoryBuffer);
+  if (!llvm::StringRef(base).ends_with(".ll") &&
+      !llvm::StringRef(base).ends_with(".bc")) {
+    return base + ".ll";
+  }
+  if (llvm::StringRef(base).ends_with(".bc")) {
+    base.resize(base.size() - 3);
+    base += ".ll";
+  }
+  return base;
 }
 
 int main(int argc, char **argv, char **envp) {
@@ -103,11 +123,17 @@ int main(int argc, char **argv, char **envp) {
 
   ExitOnError ExitOnErr("bruh (Bitcode, Readable for Us Humans): ");
 
+  std::error_code createDirErr =
+      llvm::sys::fs::create_directories(Output, /*IgnoreExisting=*/true);
+  if (createDirErr) {
+    LOG("error: failed to create output directory: " << Output);
+    return 1;
+  }
   const std::vector<PassSpec> passRegistry = {
       {
           "demangler",
           true,
-          [](Module &module) {
+          [](Module &module, const string &, const string &) {
             auto demangler = new Demangler();
             auto demanglePass = new DemanglePass(&module, demangler);
             demanglePass->visit(module);
@@ -116,7 +142,7 @@ int main(int argc, char **argv, char **envp) {
       {
           "detrampoline",
           true,
-          [](Module &module) {
+          [](Module &module, const string &, const string &) {
             auto detrampolinePass = new DetrampolinePass(&module);
             detrampolinePass->visit(module);
           },
@@ -124,9 +150,10 @@ int main(int argc, char **argv, char **envp) {
       {
           "def-use",
           false,
-          [](Module &module) {
-            (void)module;
-            // Reserved for future pass implementation.
+          [](Module &module, const string &outputDir,
+             const string &) {
+            DefUsePass defUsePass(&module, outputDir);
+            defUsePass.run();
           },
       },
   };
@@ -173,32 +200,60 @@ int main(int argc, char **argv, char **envp) {
     }
   }
 
-  // TODO: support multi modules via BitcodeFileContents reading APIs
-  std::unique_ptr<MemoryBuffer> bitcode =
-      ExitOnErr(getBitcodeFile(InputFilename));
+  // Optional: require .bc or .ll extension when reading from a file
+  if (InputFilename != "-") {
+    StringRef path = InputFilename;
+    if (!path.ends_with(".bc") && !path.ends_with(".ll")) {
+      LOG("error: expected input file with extension .bc or .ll");
+      return 1;
+    }
+  }
 
-  // Convert bitcode to a module
+  std::unique_ptr<MemoryBuffer> buffer = ExitOnErr(getInputFile(InputFilename));
+
+  llvm::SMDiagnostic err;
   std::unique_ptr<Module> module =
-      ExitOnErr(getOwningLazyBitcodeModule(std::move(bitcode), context, true));
-  ExitOnErr(module->materializeAll());
+      llvm::parseIR(buffer->getMemBufferRef(), err, context);
+  if (!module) {
+    err.print(argv[0], llvm::errs());
+    return 1;
+  }
 
-  // Dump regular, unprocessed IR if asked to
+  // Resolve default paths under the output directory. Processed IR defaults
+  // to <output-dir>/<basename>.ll; regular (unprocessed) IR defaults to
+  // <output-dir>/<basename>-regular.ll.
+  const string outputBasename = getOutputBasename(InputFilename);
+  const string sep = llvm::sys::path::get_separator().str();
+  const string defaultProcessedPath = Output + sep + outputBasename;
+  const string defaultRegularPath =
+      Output + sep +
+      (outputBasename == "stdin.ll"
+           ? "stdin-regular.ll"
+           : outputBasename.substr(0, outputBasename.size() - 3) + "-regular.ll");
+  const string processedPath =
+      (ProcessedOutput == "-") ? defaultProcessedPath : ProcessedOutput;
+  const string regularPath = RegularOutput.empty()
+                                ? defaultRegularPath
+                                : (RegularOutput == "-" ? defaultRegularPath
+                                                        : RegularOutput);
+
+  // Dump regular, unprocessed IR (default: <output-dir>/<basename>-regular.ll)
   std::error_code errorCode;
-  if (!RegularOutput.empty()) {
-    raw_fd_ostream os(RegularOutput, errorCode);
+  if (!regularPath.empty()) {
+    raw_fd_ostream os(regularPath, errorCode);
 
     if (errorCode) {
-      LOG("error: failed to open file for regular printing: " << RegularOutput);
+      LOG("error: failed to open file for regular printing: " << regularPath);
     } else {
       module->print(os, NULL, false, true);
     }
   }
 
-  // Dump processed IR
-  raw_fd_ostream os(ProcessedOutput, errorCode);
+  // Dump processed IR (default: <output-dir>/<basename>.ll)
+  raw_fd_ostream os(processedPath, errorCode);
 
   if (errorCode) {
-    LOG("error: failed to open file for regular printing: " << ProcessedOutput);
+    LOG("error: failed to open file for processed printing: " << processedPath);
   } else {
     for (const auto &passSpec : passRegistry) {
       const bool shouldRun =
@@ -207,7 +262,7 @@ int main(int argc, char **argv, char **envp) {
               : passSpec.enabledByDefault;
 
       if (shouldRun) {
-        passSpec.run(*module);
+        passSpec.run(*module, Output, InputFilename);
       }
     }
 

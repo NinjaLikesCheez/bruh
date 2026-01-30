@@ -65,22 +65,32 @@ Once built, bruh can be run from the command line like so:
 ```bash
 ❯ ./bruh --help
 OVERVIEW: bruh (Bitcode, Readable for Us Humans) v0.1
-USAGE: bruh [options] <bitcode file>
+USAGE: bruh [options] <bitcode (.bc) or IR (.ll) file>
 
 OPTIONS:
 
 General options:
 
-  --processed=<string>                - Emit processed IR to this filepath, or stdout if nothing is provided
+  -o, --output=<string>               - Directory path for output artifacts (default: output)
+  -p, --processed=<string>            - Emit processed IR to this filepath (default: <output-dir>/<basename>.ll)
+  -r, --regular=<string>              - Emit unprocessed IR to this filepath (default: <output-dir>/<basename>-regular.ll)
   --passes=<string>                   - Comma-separated list of passes to run (demangler,detrampoline,def-use)
-  --regular=<string>                  - Emit unprocessed IR to this filepath
 ```
 
-There are a set of test files in `test/<lang>/main.bc` that you can test, currently bruh requires a bitcode file - not a binary, or ll file.
+By default, all output artifacts (processed IR, unprocessed IR, and pass outputs such as def-use graphs) are written under the **output directory**. Use `-o` or `--output` to set this directory (default: `output` in the current working directory). Processed IR is written to `<output-dir>/<basename>.ll` and unprocessed IR to `<output-dir>/<basename>-regular.ll` unless you override with `-p` or `-r`.
+
+There are a set of test files in `test/<lang>/main.bc` and `test/<lang>/main.ll` that you can test. bruh accepts either a bitcode (`.bc`) or human-readable IR (`.ll`) file as input—not a binary.
 
 ### Example
 
 ```bash
+# Default: writes to output/main.ll and output/main-regular.ll
+./bruh test/objc/main.bc
+
+# Custom output directory
+./bruh -o build test/objc/main.ll
+
+# Override processed output path
 ./bruh --processed=test/objc/main-proc.ll test/objc/main.bc
 ```
 

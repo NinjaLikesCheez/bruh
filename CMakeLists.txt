@@ -23,6 +23,7 @@ endif()
 
 set(BRUH_SRC
     src/main.cpp
+    src/DefUsePass.cpp
     src/Demangler.cpp
     src/DemanglePass.cpp
     src/Detrampoliner.cpp
@@ -30,6 +31,7 @@ set(BRUH_SRC
 )
 
 set(BRUH_INCLUDES
+    include/DefUsePass.h
     include/Demangler.h
     include/DemanglePass.h
     include/Detrampoliner.h
